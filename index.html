@@ -46,12 +46,51 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between max-w-md mx-auto px-3.5 py-4 select-none">
 
+    <!-- ==================== 0. نافذة تسجيل الدخول الإلزامية برقم الواتساب ==================== -->
+    <div id="auth-gate-modal" class="fixed inset-0 bg-[#070a09]/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-[#141a18] border border-emerald-500/40 rounded-3xl w-full max-w-sm p-6 space-y-5 shadow-2xl text-center">
+            <div class="w-16 h-16 rounded-2xl bg-[#1a6e38] border border-emerald-400/40 flex items-center justify-center mx-auto shadow-lg">
+                <svg class="w-8 h-8 text-emerald-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+            </div>
+            <div class="space-y-1.5">
+                <h2 class="text-xl font-black text-white">مرحباً بك في <span class="text-emerald-400">DAH STORE</span></h2>
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    سجّل الدخول برقم الواتساب الخاص بك لحفظ رصيد نقاطك وطلباتك ومتابعة حالة الموافقة عليها تلقائياً.
+                </p>
+            </div>
+
+            <div class="space-y-3 text-right">
+                <div>
+                    <label class="block text-xs font-bold text-emerald-300 mb-1.5">رقم الواتساب الخاص بك (إلزامي):</label>
+                    <input type="tel" id="auth-phone-input" dir="ltr" placeholder="مثال: 38425768" class="w-full bg-[#0d1110] border border-[#24332e] focus:border-emerald-500 rounded-2xl px-4 py-3 text-base font-black text-white text-center tracking-wider outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1.5">الاسم أو اللقب (اختياري):</label>
+                    <input type="text" id="auth-name-input" placeholder="أدخل اسمك..." class="w-full bg-[#0d1110] border border-[#24332e] focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-sm text-white outline-none transition">
+                </div>
+            </div>
+
+            <button type="button" onclick="loginWithWhatsApp()" class="w-full bg-[#1a6e38] hover:bg-[#218745] border border-emerald-400/40 text-white font-black py-3.5 rounded-2xl text-sm transition shadow-lg">
+                دخول إلى حسابي 🚀
+            </button>
+
+            <div class="pt-2 border-t border-[#1f2b27]">
+                <button type="button" onclick="openAdminGate()" class="text-[11px] text-gray-500 hover:text-emerald-400 font-bold transition">
+                    🔐 دخول الإدارة (صاحب المتجر)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== المحتوى الرئيسي للمتجر ==================== -->
     <div class="space-y-4">
         
         <!-- 1. الشريط العلوي (Navbar) -->
         <header class="bg-card-dark rounded-2xl p-2.5 flex items-center justify-between shadow-lg">
-            <!-- الشعار على اليمين -->
-            <div class="flex items-center gap-2.5 cursor-pointer" onclick="goHome()">
+            <!-- الشعار على اليمين (الضغط المطوّل 3 ثوانٍ يفتح لوحة الإدارة) -->
+            <div id="store-logo-trigger" class="flex items-center gap-2 cursor-pointer" onclick="goHome()" onmousedown="startLogoHold()" onmouseup="cancelLogoHold()" onmouseleave="cancelLogoHold()" ontouchstart="startLogoHold()" ontouchend="cancelLogoHold()">
                 <div class="w-9 h-9 rounded-xl bg-[#1a6e38] border border-emerald-500/40 flex items-center justify-center shrink-0 shadow-md">
                     <svg class="w-5 h-5 text-emerald-300" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -61,7 +100,10 @@
                     <h1 class="font-black text-sm tracking-wide">
                         <span class="text-white">DAH</span> <span class="text-emerald-400">STORE</span>
                     </h1>
-                    <p class="text-[10px] text-gray-400 font-semibold">شحن فوري & بطاقات رقمية</p>
+                    <button type="button" onclick="event.stopPropagation(); switchCustomerAccount();" title="تغيير رقم الواتساب" class="text-[10px] text-emerald-300/90 hover:text-emerald-200 font-bold flex items-center gap-1 mt-0.5">
+                        <span id="header-user-phone">غير مسجل</span>
+                        <span class="text-[9px] text-gray-400">✎</span>
+                    </button>
                 </div>
             </div>
 
@@ -76,10 +118,10 @@
                     </div>
                 </button>
 
-                <!-- زر متابعة الطلبات وحالتها -->
+                <!-- زر متابعة الطلبات المعتمدة والمرفوضة فقط -->
                 <button onclick="openOrdersModal()" class="bg-[#122b1d] border border-[#1f4d34] hover:border-emerald-400/60 rounded-xl px-2 py-1.5 text-center leading-tight transition relative">
                     <span class="block text-[10px] font-bold text-emerald-300">طلباتي</span>
-                    <span id="orders-badge" class="hidden absolute -top-1.5 -left-1 bg-amber-500 text-black text-[9px] font-black px-1.5 rounded-full">0</span>
+                    <span id="orders-badge" class="hidden absolute -top-1.5 -left-1 bg-emerald-500 text-black text-[9px] font-black px-1.5 rounded-full">0</span>
                 </button>
 
                 <!-- زر طرق الدفع -->
@@ -94,6 +136,15 @@
                 </button>
             </div>
         </header>
+
+        <!-- شريط إشعار فوري للزبون عند موافقة أو رفض الإدارة على طلبه -->
+        <div id="customer-decision-alert" class="hidden rounded-2xl p-3.5 border shadow-lg flex items-start justify-between gap-2.5 transition-all">
+            <div class="space-y-1 text-right">
+                <h4 id="alert-decision-title" class="text-xs font-black"></h4>
+                <p id="alert-decision-body" class="text-[11px] leading-relaxed"></p>
+            </div>
+            <button type="button" onclick="dismissDecisionAlert()" class="text-xs opacity-70 hover:opacity-100 px-1.5 py-0.5 rounded-lg bg-black/20">✕</button>
+        </div>
 
         <!-- 2. البانر الرئيسي العلوي (Hero Banner) -->
         <section id="hero-banner" class="hero-banner rounded-3xl p-4 shadow-xl space-y-3.5 relative overflow-hidden">
@@ -164,6 +215,12 @@
             <span class="text-gray-600">•</span>
             <a href="mailto:dahstore123@gmail.com" class="hover:text-emerald-400 transition">dahstore123@gmail.com</a>
         </div>
+        <!-- زر لوحة تحكم الإدارة للمعاينة والوصول السريع -->
+        <div class="pt-1">
+            <button type="button" onclick="openAdminGate()" class="text-[10px] text-gray-500 hover:text-emerald-400 transition font-semibold">
+                ⚙️ لوحة تحكم الإدارة (الموافقة / الرفض)
+            </button>
+        </div>
     </footer>
 
     <!-- ==================== النوافذ المنبثقة (Modals) ==================== -->
@@ -183,11 +240,11 @@
             <div class="bg-[#0d1110] border border-[#1f2b27] rounded-2xl p-3 flex items-center justify-between">
                 <div>
                     <span id="modal-price-label" class="text-[11px] text-gray-400 block">المبلغ المطلوب</span>
-                    <span id="modal-price" class="text-lg font-black text-emerald-400">50 MRU</span>
+                    <span id="modal-price" class="text-lg font-black text-emerald-400">50 أوقية</span>
                 </div>
                 <div class="bg-[#241d0d] border border-[#4a3914] px-3 py-1 rounded-xl text-center">
                     <span class="text-[10px] text-amber-200 block">مكافأة الطلب</span>
-                    <span id="modal-points" class="text-xs font-extrabold text-amber-400">+5 نقطة 🎁</span>
+                    <span id="modal-points" class="text-xs font-extrabold text-amber-400">+3 نقطة 🎁</span>
                 </div>
             </div>
 
@@ -201,34 +258,34 @@
                 </div>
             </div>
 
-            <!-- الحقل الأساسي الديناميكي (آيدي / رقم واتساب / إيميل / عنوان محفظة) -->
+            <!-- الحقل الأساسي الديناميكي -->
             <div>
                 <label id="input-label" class="block text-xs font-bold text-gray-300 mb-1.5">معرف اللاعب (Player ID):</label>
                 <input type="text" id="primary-input" placeholder="أدخل البيانات المطلوبة هنا..." class="w-full bg-[#0d1110] border border-[#24332e] focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none transition">
             </div>
 
-            <!-- حقل إضافي (رقم المحول منه / اسم المستخدم / نوع الربط) -->
+            <!-- حقل إضافي -->
             <div id="secondary-input-box" class="hidden">
                 <label id="secondary-input-label" class="block text-xs font-bold text-gray-300 mb-1.5">بيانات إضافية:</label>
                 <input type="text" id="secondary-input" placeholder="أدخل البيانات هنا..." class="w-full bg-[#0d1110] border border-[#24332e] focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none transition">
             </div>
 
-            <!-- حقل الرقم المحول منه (إلزامي لكل طلب) -->
+            <!-- حقل الرقم المحول منه -->
             <div id="sender-phone-box">
                 <label id="sender-phone-label" class="block text-xs font-bold text-emerald-300 mb-1.5">الرقم المحول منه (إلزامي):</label>
                 <input type="tel" id="sender-phone-input" placeholder="أدخل الرقم الذي حولت منه (مثال: 38425768)..." class="w-full bg-[#0d1110] border border-emerald-500/40 focus:border-emerald-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none transition">
             </div>
 
-            <!-- خيار تطبيق رصيد النقاط المستبدلة (خصم 50 أوقية لكل 100 نقطة) -->
+            <!-- خيار تطبيق رصيد النقاط المستبدلة -->
             <div id="redeem-credit-box" class="hidden bg-[#241d0d]/70 border border-[#4a3914] rounded-xl p-2.5 flex items-center justify-between gap-2">
                 <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-300">
                     <input type="checkbox" id="apply-redeem-credit" onchange="updateOrderPricePreview()" class="rounded accent-amber-400 w-4 h-4">
-                    <span>استخدام رصيد النقاط المتاح (<span id="order-available-credit">0</span> أوقية)</span>
+                    <span>استخدام رصيد النقاط (<span id="order-available-credit">0</span> أوقية)</span>
                 </label>
                 <span id="order-final-price-preview" class="text-xs font-black text-emerald-400"></span>
             </div>
 
-            <!-- اختيار وسيلة الدفع أو الاستلام المحلية -->
+            <!-- اختيار وسيلة الدفع -->
             <div>
                 <label id="pay-method-section-label" class="block text-xs font-bold text-gray-300 mb-1.5">اختر وسيلة الدفع:</label>
                 <div class="grid grid-cols-3 gap-1.5" id="payment-methods-selector">
@@ -237,7 +294,6 @@
                     <button type="button" onclick="selectPayMethod('Sedad', '38425768', this)" class="pay-method-btn bg-[#0d1110] border border-[#24332e] text-gray-400 rounded-xl py-2 text-xs font-bold">Sedad</button>
                 </div>
                 
-                <!-- صندوق عرض حساب المتجر للدفع (يظهر في الشراء العادي) -->
                 <div id="store-pay-account-box" class="mt-2 bg-[#0d1110] border border-[#1f2b27] rounded-xl p-2.5 flex items-center justify-between gap-2">
                     <div class="overflow-hidden">
                         <span id="selected-pay-name" class="text-[10px] text-gray-400 block">حول المبلغ إلى حساب Bankily:</span>
@@ -246,7 +302,6 @@
                     <button type="button" onclick="copyCurrentPayNumber()" class="bg-[#1c2623] hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs font-bold px-3 py-1.5 rounded-lg shrink-0 transition">نسخ</button>
                 </div>
 
-                <!-- صندوق بيانات تحويل USDT للمتجر (يظهر عندما يبيع الزبون USDT للمتجر) -->
                 <div id="store-crypto-wallet-box" class="hidden mt-2 bg-[#122b1d] border border-[#1f4d34] rounded-xl p-2.5 space-y-1.5">
                     <span class="text-[10px] text-emerald-300 font-bold block">حول USDT إلى محفظة المتجر (BEP20 / TRC20 أو عبر ID المنصة):</span>
                     <div class="flex items-center justify-between gap-2 bg-[#0d1110] p-2 rounded-lg border border-[#1f2b27]">
@@ -269,10 +324,10 @@
                 </label>
             </div>
 
-            <!-- أزرار الإرسال (الإيميل + تأكيد سريع عبر الواتساب) -->
+            <!-- أزرار الإرسال -->
             <div class="space-y-2 pt-1">
                 <button onclick="submitOrder('email')" class="w-full bg-[#1a6e38] hover:bg-[#218745] border border-emerald-400/30 text-white font-black py-3 rounded-xl text-xs sm:text-sm transition shadow-lg flex items-center justify-center gap-2">
-                    <span>تأكيد وإرسال الطلب عبر الإيميل ✉️</span>
+                    <span>إرسال الطلب إلى إيميل المتجر ✉️</span>
                 </button>
                 <button onclick="submitOrder('whatsapp')" class="w-full bg-[#122b22] hover:bg-[#193b2f] border border-emerald-500/40 text-emerald-300 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
                     <span>إرسال الفاتورة والإيصال عبر واتساب الدعم 💬</span>
@@ -299,6 +354,13 @@
                 <div class="bg-[#0d1110] border border-[#1f2b27] rounded-2xl p-3 flex items-center justify-between">
                     <div>
                         <span class="text-xs font-extrabold text-emerald-400 block">مصرفي (Masrvi)</span>
+                        <span class="text-sm font-bold text-white tracking-wider">38425768</span>
+                    </div>
+                    <button onclick="copyText('38425768')" class="bg-[#1c2623] hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">نسخ</button>
+                </div>
+                <div class="bg-[#0d1110] border border-[#1f2b27] rounded-2xl p-3 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-extrabold text-sky-400 block">سداد (Sedad)</span>
                         <span class="text-sm font-bold text-white tracking-wider">38425768</span>
                     </div>
                     <button onclick="copyText('38425768')" class="bg-[#1c2623] hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">نسخ</button>
@@ -330,7 +392,10 @@
     <div id="points-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
         <div class="bg-[#141a18] border border-[#24332e] rounded-3xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-[#1f2b27] pb-3">
-                <h3 class="text-base font-extrabold text-amber-400">نقاط DAH STORE واستبدالها 🎁</h3>
+                <div class="text-right">
+                    <h3 class="text-base font-extrabold text-amber-400">نقاط حسابك واستبدالها 🎁</h3>
+                    <span id="points-modal-phone" class="text-[10px] text-gray-400">مرتبط برقم الواتساب</span>
+                </div>
                 <button onclick="closeModal('points-modal')" class="w-8 h-8 rounded-full bg-[#1c2623] text-gray-400 hover:text-white flex items-center justify-center">✕</button>
             </div>
 
@@ -347,15 +412,18 @@
                 </div>
             </div>
 
-            <!-- قسم استبدال النقاط: كل 100 نقطة = 50 أوقية -->
             <div class="bg-[#0d1110] border border-[#24332e] rounded-2xl p-3.5 space-y-2.5 text-right">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-black text-amber-300">استبدال النقاط برصيد</span>
                     <span class="text-[11px] font-bold text-emerald-400">100 نقطة = 50 أوقية</span>
                 </div>
+                <div id="points-rate-banner" class="bg-[#122b1d] border border-[#1f4d34] rounded-xl px-3 py-2 text-[11px] font-extrabold text-emerald-300">
+                    <!-- يتم تحديث حالة اليوم (عادي أو جمعة) ديناميكياً -->
+                </div>
                 <p class="text-[11px] text-gray-400 leading-relaxed">
-                    • كل <strong class="text-white">50 أوقية</strong> في الطلبات المقبولة تمنحك <strong class="text-amber-400">3 نقاط</strong> (تُضاف فقط بعد قبول الطلب).<br>
-                    • كل <strong class="text-white">100 نقطة</strong> يمكنك استبدالها مقابل <strong class="text-emerald-400">50 أوقية</strong> تُخصم من طلباتك القادمة.
+                    • في الأيام العادية: كل <strong class="text-white">50 أوقية</strong> تمنحك <strong class="text-amber-400">1 نقطة</strong>.<br>
+                    • يوم الجمعة: عرض خاص مضاعف! كل <strong class="text-white">50 أوقية</strong> تمنحك <strong class="text-emerald-400">3 نقاط</strong>.<br>
+                    • تُضاف النقاط تلقائياً بعد موافقة الإدارة على طلبك فقط (0 نقطة عند الرفض)، وكل <strong class="text-white">100 نقطة</strong> تُستبدل بـ <strong class="text-emerald-400">50 أوقية</strong> خصم.
                 </p>
                 <button type="button" onclick="redeemPointsBlock()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-2.5 rounded-xl text-xs transition shadow-md">
                     استبدال 100 نقطة مقابل 50 أوقية 🔄
@@ -364,29 +432,131 @@
         </div>
     </div>
 
-    <!-- 5. نافذة متابعة حالة الطلبات ومراجعة الإدارة -->
+    <!-- 5. نافذة طلبات الزبون (تظهر فيها فقط الطلبات التي تمت الموافقة عليها أو رفضها من طرف الإدارة) -->
     <div id="orders-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
         <div class="bg-[#141a18] border border-[#24332e] rounded-3xl w-full max-w-sm p-5 space-y-3.5 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-[#1f2b27] pb-3">
                 <div>
-                    <h3 class="text-base font-extrabold text-white">حالة الطلبات والتحقق 📋</h3>
-                    <span class="text-[10px] text-gray-400">يتم احتساب النقاط فقط عند قبول الطلب</span>
+                    <h3 class="text-base font-extrabold text-white">سجل الطلبات المعتمدة والمرفوضة 📋</h3>
+                    <span class="text-[10px] text-gray-400">تظهر هنا الطلبات بعد مراجعة الإدارة لها فقط</span>
                 </div>
                 <button onclick="closeModal('orders-modal')" class="w-8 h-8 rounded-full bg-[#1c2623] text-gray-400 hover:text-white flex items-center justify-center">✕</button>
             </div>
             <div id="orders-list-container" class="space-y-2.5 text-xs">
-                <!-- يتم تعبئة الطلبات ديناميكياً -->
+                <!-- يتم تعبئة الطلبات المعتمدة/المرفوضة فقط -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. نافذة بوابة الإدارة السرية (Admin Gate & Control Panel) -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden items-center justify-center p-3">
+        <div class="bg-[#141a18] border border-emerald-500/40 rounded-3xl w-full max-w-sm p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-[#1f2b27] pb-3">
+                <div>
+                    <h3 class="text-base font-black text-emerald-400">لوحة تحكم الإدارة (DAH STORE) 🔐</h3>
+                    <span class="text-[10px] text-gray-400">الموافقة أو الرفض على طلبات الزبائن</span>
+                </div>
+                <button onclick="closeModal('admin-modal')" class="w-8 h-8 rounded-full bg-[#1c2623] text-gray-400 hover:text-white flex items-center justify-center">✕</button>
+            </div>
+
+            <!-- شاشة إدخال رمز الإدارة -->
+            <div id="admin-login-box" class="space-y-3">
+                <p class="text-xs text-gray-300">أدخل رمز مرور الإدارة للمتابعة (الرمز الافتراضي: <span class="text-emerald-400 font-bold">38425768</span>):</p>
+                <input type="password" id="admin-pin-input" dir="ltr" placeholder="••••••••" class="w-full bg-[#0d1110] border border-[#24332e] focus:border-emerald-500 rounded-xl px-4 py-2.5 text-center text-base font-black text-white outline-none">
+                <button type="button" onclick="verifyAdminPin()" class="w-full bg-[#1a6e38] hover:bg-[#218745] text-white font-black py-2.5 rounded-xl text-xs transition">
+                    دخول لوحة الإدارة
+                </button>
+            </div>
+
+            <!-- محتوى لوحة الإدارة بعد التحقق -->
+            <div id="admin-dashboard-box" class="hidden space-y-3">
+                <div class="bg-[#0d1110] border border-[#1f2b27] rounded-2xl p-3 text-[11px] text-gray-300 leading-relaxed">
+                    عند الضغط على <strong class="text-emerald-400">موافقة</strong>: يُضاف الرصيد للنقاط (+3 لكل 50 أوقية) ويظهر للزبون إشعار الموافقة ويظهر الطلب في قائمة طلباته.<br>
+                    عند الضغط على <strong class="text-rose-400">رفض</strong>: لا تُحتسب أي نقاط ويظهر للزبون إشعار الرفض.
+                </div>
+                <div id="admin-orders-list" class="space-y-2.5 text-xs">
+                    <!-- جميع الطلبات لإدارتها -->
+                </div>
             </div>
         </div>
     </div>
 
     <!-- إشعار منبثق (Toast Notification) -->
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-[#1a6e38] border border-emerald-400/40 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 whitespace-nowrap">
-        تم النسخ بنجاح!
+        تم التنفيذ بنجاح!
     </div>
 
+    <!-- ==================== Firebase + منطق التطبيق ==================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // تهيئة التخزين السحابي المشترك إن توفر مع fallback محلي فوري
+        let db = null;
+        let auth = null;
+        let cloudReady = false;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dah-store-prod';
+
+        async function initCloudStorage() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+        function isFridayBoostActive() {
+            return new Date().getDay() === 5;
+        }
+
+        function getPointsPer50Mru() {
+            return isFridayBoostActive() ? 3 : 1;
+        }
+
+        // حساب النقاط: كل 50 أوقية = 1 نقطة في الأيام العادية، و3 نقاط يوم الجمعة
+        function calcPointsFromAmount(amountMru) {
+            const val = parseFloat(amountMru) || 0;
+            return Math.floor(val / 50) * getPointsPer50Mru();
+        }
+
+        // دوال مزامنة بيانات الزبائن والطلبات
+        window.syncCloudOrder = async function(order) {
+            if (!cloudReady || !db) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', order.id), order);
+            } catch (e) { console.error(e); }
+        };
+
+        window.syncCloudAccount = async function(phone, accountData) {
+            if (!cloudReady || !db || !phone) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'accounts', phone), accountData, { merge: true });
+            } catch (e) { console.error(e); }
+        };
+
+        window.subscribeCloudData = function(phone) {
+            if (!cloudReady || !db) return;
+            // الاستماع لتحديثات حساب الزبون (النقاط)
+            if (phone) {
+                onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'accounts', phone), (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        window.applyRemoteAccountUpdate(phone, data);
+                    }
+                }, (err) => console.error(err));
+            }
+            // الاستماع لتحديثات جميع الطلبات
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), (snapshot) => {
+                const remoteOrders = [];
+                snapshot.forEach(d => remoteOrders.push(d.data()));
+                window.applyRemoteOrdersUpdate(remoteOrders);
+            }, (err) => console.error(err));
+        };
+
+        initCloudStorage();
+    </script>
+
     <script>
-        // الرسومات الفنية ثلاثية الأبعاد للفئات الـ 9
+        // ==================== 1. الرسومات الفنية للفئات الـ 9 ====================
         const categoryArtworks = {
             games: `
                 <svg viewBox="0 0 200 200" class="w-full h-full object-cover">
@@ -601,9 +771,8 @@
             `
         };
 
-        // قاعدة بيانات المتجر الكاملة والمرتبة حسب طلبك (9 فئات)
+        // ==================== 2. قاعدة بيانات المنتجات والفئات ====================
         const storeData = [
-            // الصف الأول: الألعاب | الاشتراكات | الذكاء الاصطناعي AI
             {
                 id: "games",
                 title: "الألعاب",
@@ -860,8 +1029,6 @@
                     }
                 ]
             },
-
-            // الصف الثاني: تيك توك | سناب شات | تيليغرام (تتطلب يوزر الحساب + رقم واتساب)
             {
                 id: "tiktok",
                 title: "تيك توك",
@@ -924,8 +1091,6 @@
                     { title: "سنة كاملة بريميوم", price: "2100 أوقية", amount: 2100 }
                 ]
             },
-
-            // الصف الثالث: البطاقات الرقمية | بطاقات الفيزا | تداول USDT
             {
                 id: "digital_cards",
                 title: "البطاقات الرقمية",
@@ -987,13 +1152,11 @@
             }
         ];
 
-        // حساب النقاط: كل 50 أوقية = 3 نقاط
-        function calcPointsFromAmount(amountMru) {
-            const val = parseFloat(amountMru) || 0;
-            return Math.floor(val / 50) * 3;
-        }
+        // ==================== 3. إدارة الحسابات برقم الواتساب والطلبات ====================
+        const ADMIN_PIN = '38425768';
+        let currentCustomerPhone = localStorage.getItem('dah_active_phone') || '';
+        let currentCustomerName = localStorage.getItem('dah_active_name') || '';
 
-        // متغيرات الحالة
         let currentView = 'home';
         let selectedCategory = null;
         let selectedSubItem = null;
@@ -1004,43 +1167,189 @@
         let currentPayNumber = '38425768';
         let selectedUsdtPlatform = 'BINANCE';
         let receiptAttached = false;
+        let logoHoldTimer = null;
 
-        let userPoints = parseInt(localStorage.getItem('dah_points') || '0');
-        let redeemCreditMru = parseInt(localStorage.getItem('dah_redeem_credit') || '0');
-        let ordersHistory = JSON.parse(localStorage.getItem('dah_orders_v1') || '[]');
-
-        function saveState() {
-            localStorage.setItem('dah_points', String(userPoints));
-            localStorage.setItem('dah_redeem_credit', String(redeemCreditMru));
-            localStorage.setItem('dah_orders_v1', JSON.stringify(ordersHistory));
+        function normalizePhone(raw) {
+            const digits = String(raw || '').replace(/\D/g, '');
+            if (digits.startsWith('222') && digits.length === 11) {
+                return digits.slice(3);
+            }
+            return digits;
         }
 
-        function updatePointsUI() {
-            document.getElementById('points-display').textContent = userPoints;
-            document.getElementById('modal-total-points').textContent = userPoints;
-            document.getElementById('modal-redeem-credit').textContent = redeemCreditMru;
-            document.getElementById('order-available-credit').textContent = redeemCreditMru;
+        function getAccountsMap() {
+            return JSON.parse(localStorage.getItem('dah_accounts_map_v2') || '{}');
+        }
 
-            const pendingCount = ordersHistory.filter(o => o.status === 'pending').length;
+        function saveAccountsMap(map) {
+            localStorage.setItem('dah_accounts_map_v2', JSON.stringify(map));
+        }
+
+        function getAllOrders() {
+            return JSON.parse(localStorage.getItem('dah_all_orders_v2') || '[]');
+        }
+
+        function saveAllOrders(list) {
+            localStorage.setItem('dah_all_orders_v2', JSON.stringify(list));
+        }
+
+        function getCustomerAccount(phone) {
+            const clean = normalizePhone(phone);
+            const map = getAccountsMap();
+            if (!map[clean]) {
+                map[clean] = {
+                    phone: clean,
+                    name: '',
+                    points: 0,
+                    redeemCredit: 0,
+                    dismissedAlertOrderId: ''
+                };
+                saveAccountsMap(map);
+            }
+            return map[clean];
+        }
+
+        function updateCustomerAccount(phone, updates) {
+            const clean = normalizePhone(phone);
+            if (!clean) return;
+            const map = getAccountsMap();
+            const existing = map[clean] || { phone: clean, name: '', points: 0, redeemCredit: 0, dismissedAlertOrderId: '' };
+            map[clean] = { ...existing, ...updates };
+            saveAccountsMap(map);
+            if (window.syncCloudAccount) {
+                window.syncCloudAccount(clean, map[clean]);
+            }
+        }
+
+        function calcPointsFromAmount(amountMru) {
+            const val = parseFloat(amountMru) || 0;
+            return Math.floor(val / 50) * 3;
+        }
+
+        // تسجيل الدخول الإلزامي برقم الواتساب
+        function loginWithWhatsApp() {
+            const rawPhone = document.getElementById('auth-phone-input').value.trim();
+            const rawName = document.getElementById('auth-name-input').value.trim();
+            const cleanPhone = normalizePhone(rawPhone);
+
+            if (cleanPhone.length < 8) {
+                showToast('⚠️ يرجى إدخال رقم واتساب صحيح (8 أرقام على الأقل)');
+                return;
+            }
+
+            currentCustomerPhone = cleanPhone;
+            currentCustomerName = rawName;
+            localStorage.setItem('dah_active_phone', cleanPhone);
+            localStorage.setItem('dah_active_name', rawName);
+
+            const acc = getCustomerAccount(cleanPhone);
+            if (rawName) {
+                updateCustomerAccount(cleanPhone, { name: rawName });
+            } else if (acc.name) {
+                currentCustomerName = acc.name;
+            }
+
+            document.getElementById('auth-gate-modal').classList.add('hidden');
+            refreshCustomerUI();
+            if (window.subscribeCloudData) {
+                window.subscribeCloudData(cleanPhone);
+            }
+            showToast(`✅ تم تسجيل الدخول برقم الواتساب: ${cleanPhone}`);
+        }
+
+        function switchCustomerAccount() {
+            document.getElementById('auth-phone-input').value = currentCustomerPhone;
+            document.getElementById('auth-name-input').value = currentCustomerName;
+            document.getElementById('auth-gate-modal').classList.remove('hidden');
+        }
+
+        function refreshCustomerUI() {
+            if (!currentCustomerPhone) return;
+            const acc = getCustomerAccount(currentCustomerPhone);
+            const fridayNow = isFridayBoostActive();
+            const ratePer50 = getPointsPer50Mru();
+
+            document.getElementById('header-user-phone').textContent = currentCustomerName
+                ? `${currentCustomerName} (${currentCustomerPhone})`
+                : currentCustomerPhone;
+            document.getElementById('points-modal-phone').textContent = `حساب الواتساب: ${currentCustomerPhone}`;
+            document.getElementById('points-display').textContent = acc.points || 0;
+            document.getElementById('modal-total-points').textContent = acc.points || 0;
+            document.getElementById('modal-redeem-credit').textContent = acc.redeemCredit || 0;
+            document.getElementById('order-available-credit').textContent = acc.redeemCredit || 0;
+
+            const rateBanner = document.getElementById('points-rate-banner');
+            if (rateBanner) {
+                if (fridayNow) {
+                    rateBanner.className = 'bg-[#122b1d] border border-emerald-400/50 rounded-xl px-3 py-2 text-[11px] font-extrabold text-emerald-300';
+                    rateBanner.textContent = `🎉 عرض الجمعة نشط اليوم! كل 50 أوقية = 3 نقاط (${ratePer50}x)`;
+                } else {
+                    rateBanner.className = 'bg-[#141a18] border border-[#24332e] rounded-xl px-3 py-2 text-[11px] font-bold text-amber-300';
+                    rateBanner.textContent = `📅 نظام اليوم العادي: كل 50 أوقية = 1 نقطة (ويوم الجمعة: 3 نقاط لكل 50 أوقية)`;
+                }
+            }
+
+            // تصفية طلبات هذا الزبون التي تمت الموافقة عليها أو رفضها من الإدارة فقط
+            const allOrders = getAllOrders();
+            const decidedCustomerOrders = allOrders.filter(o =>
+                normalizePhone(o.customerPhone) === currentCustomerPhone &&
+                (o.status === 'approved' || o.status === 'rejected')
+            );
+
             const badge = document.getElementById('orders-badge');
-            if (pendingCount > 0) {
-                badge.textContent = pendingCount;
+            if (decidedCustomerOrders.length > 0) {
+                badge.textContent = decidedCustomerOrders.length;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
+            }
+
+            // إظهار إشعار واضح في الموقع لأحدث قرار (موافقة أو رفض) من الإدارة
+            const alertBox = document.getElementById('customer-decision-alert');
+            if (decidedCustomerOrders.length > 0) {
+                const latest = decidedCustomerOrders[0];
+                if (acc.dismissedAlertOrderId !== `${latest.id}_${latest.status}`) {
+                    alertBox.classList.remove('hidden');
+                    if (latest.status === 'approved') {
+                        alertBox.className = 'rounded-2xl p-3.5 border border-emerald-500/60 bg-[#112e1d] text-emerald-100 shadow-lg flex items-start justify-between gap-2.5';
+                        document.getElementById('alert-decision-title').textContent = `✅ تمت الموافقة على طلبك (${latest.id})`;
+                        document.getElementById('alert-decision-body').textContent = `تم شحن ${latest.serviceName} (${latest.packageTitle}) بنجاح، وتمت إضافة +${latest.potentialPoints} نقطة إلى حسابك!`;
+                    } else {
+                        alertBox.className = 'rounded-2xl p-3.5 border border-rose-500/60 bg-[#2e1116] text-rose-100 shadow-lg flex items-start justify-between gap-2.5';
+                        document.getElementById('alert-decision-title').textContent = `❌ تم رفض طلبك (${latest.id})`;
+                        document.getElementById('alert-decision-body').textContent = `تم رفض طلب ${latest.serviceName} (${latest.packageTitle}) من طرف الإدارة ولم يتم احتساب أي نقاط.`;
+                    }
+                    alertBox.dataset.alertKey = `${latest.id}_${latest.status}`;
+                } else {
+                    alertBox.classList.add('hidden');
+                }
+            } else {
+                alertBox.classList.add('hidden');
+            }
+        }
+
+        function dismissDecisionAlert() {
+            const alertBox = document.getElementById('customer-decision-alert');
+            const key = alertBox.dataset.alertKey || '';
+            alertBox.classList.add('hidden');
+            if (currentCustomerPhone && key) {
+                updateCustomerAccount(currentCustomerPhone, { dismissedAlertOrderId: key });
             }
         }
 
         // استبدال كل 100 نقطة مقابل 50 أوقية
         function redeemPointsBlock() {
-            if (userPoints < 100) {
+            if (!currentCustomerPhone) return;
+            const acc = getCustomerAccount(currentCustomerPhone);
+            if ((acc.points || 0) < 100) {
                 showToast('⚠️ تحتاج إلى 100 نقطة على الأقل للاستبدال (100 نقطة = 50 أوقية)');
                 return;
             }
-            userPoints -= 100;
-            redeemCreditMru += 50;
-            saveState();
-            updatePointsUI();
+            updateCustomerAccount(currentCustomerPhone, {
+                points: acc.points - 100,
+                redeemCredit: (acc.redeemCredit || 0) + 50
+            });
+            refreshCustomerUI();
             updateOrderPricePreview();
             showToast('🎉 تم استبدال 100 نقطة وإضافة 50 أوقية إلى رصيد الخصم الخاص بك!');
         }
@@ -1048,9 +1357,11 @@
         function getEffectiveOrderAmount() {
             if (!selectedPackage) return 0;
             let baseAmount = selectedPackage.amount || 0;
+            const acc = getCustomerAccount(currentCustomerPhone);
+            const credit = acc.redeemCredit || 0;
             const applyCheckbox = document.getElementById('apply-redeem-credit');
-            if (applyCheckbox && applyCheckbox.checked && redeemCreditMru > 0 && currentOrderConfig.usdtMode !== 'sell') {
-                const discount = Math.min(baseAmount, redeemCreditMru);
+            if (applyCheckbox && applyCheckbox.checked && credit > 0 && currentOrderConfig.usdtMode !== 'sell') {
+                const discount = Math.min(baseAmount, credit);
                 return Math.max(0, baseAmount - discount);
             }
             return baseAmount;
@@ -1060,12 +1371,13 @@
             if (!selectedPackage) return;
             const effectiveAmount = getEffectiveOrderAmount();
             const earnedPts = calcPointsFromAmount(effectiveAmount);
+            const rateLabel = isFridayBoostActive() ? 'جمعة 3x' : '1 نقطة/50 أوقية';
             document.getElementById('modal-price').textContent = `${effectiveAmount} أوقية`;
-            document.getElementById('modal-points').textContent = `+${earnedPts} نقطة (بعد القبول) 🎁`;
+            document.getElementById('modal-points').textContent = `+${earnedPts} نقطة (${rateLabel}) 🎁`;
             document.getElementById('order-final-price-preview').textContent = `المطلوب: ${effectiveAmount} MRU`;
         }
 
-        // 1. الشاشة الرئيسية (الفئات الـ 9)
+        // ==================== 4. التنقل وعرض الفئات والباقات ====================
         function renderHome() {
             currentView = 'home';
             selectedCategory = null;
@@ -1102,7 +1414,6 @@
             });
         }
 
-        // 2. فتح فئة رئيسية
         function openCategory(cat) {
             selectedCategory = cat;
             activeTabIndex = 0;
@@ -1161,7 +1472,6 @@
             }
         }
 
-        // 3. فتح منتج فرعي
         function openSubItem(item) {
             if (item.unavailable) {
                 showToast('⚠️ هذه الخدمة غير متوفرة حالياً');
@@ -1199,7 +1509,6 @@
             }
         }
 
-        // 4. عرض قائمة الباقات
         function renderPackagesList(config) {
             currentView = config.returnTarget === 'home' ? 'direct_packages' : 'packages';
             document.getElementById('view-title').textContent = config.displayTitle || config.serviceName;
@@ -1263,7 +1572,6 @@
             container.appendChild(grid);
         }
 
-        // 5. واجهة وحاسبة شراء وبيع USDT (شراء: 48 أوقية | بيع: 42 أوقية)
         function renderUsdtExchange() {
             const isBuy = usdtTradeMode === 'buy';
             const rate = isBuy ? 48 : 42;
@@ -1276,7 +1584,6 @@
             const container = document.getElementById('content-area');
             container.className = 'space-y-3';
             container.innerHTML = `
-                <!-- تبويبا الشراء والبيع -->
                 <div class="grid grid-cols-2 gap-2 bg-[#141a18] p-1.5 rounded-2xl border border-[#1f2b27]">
                     <button type="button" onclick="switchUsdtMode('buy')" class="${isBuy ? 'bg-[#1a6e38] text-white font-black shadow-md' : 'text-gray-400 hover:text-white font-bold'} text-xs py-2.5 rounded-xl transition">
                         شراء USDT (48 MRU)
@@ -1287,7 +1594,6 @@
                 </div>
 
                 <div class="bg-card-dark rounded-3xl p-4 space-y-4 shadow-xl border border-[#24332e]">
-                    <!-- شارة السعر -->
                     <div class="${isBuy ? 'bg-[#122b1d] border-[#1f4d34]' : 'bg-[#2b200e] border-[#523b16]'} border rounded-2xl p-3 flex items-center justify-between">
                         <div>
                             <span class="text-xs font-black ${isBuy ? 'text-emerald-300' : 'text-amber-300'} block">
@@ -1300,7 +1606,6 @@
                         <span class="text-2xl">₮</span>
                     </div>
 
-                    <!-- اختيار كمية سريعة -->
                     <div>
                         <label class="block text-xs font-bold text-gray-300 mb-1.5">اختر كمية سريعة أو اكتب الكمية بالدولار:</label>
                         <div class="grid grid-cols-4 gap-1.5 mb-2.5">
@@ -1315,7 +1620,6 @@
                         </div>
                     </div>
 
-                    <!-- الإجمالي المحسوب -->
                     <div class="bg-[#0d1110] border border-[#1f2b27] rounded-2xl p-3.5 flex items-center justify-between">
                         <div>
                             <span class="text-[11px] text-gray-400 block">${isBuy ? 'المبلغ المطلوب دفعه للمتجر' : 'المبلغ الذي ستستلمه بالأوقية'}</span>
@@ -1327,7 +1631,6 @@
                         </div>
                     </div>
 
-                    <!-- زر المتابعة -->
                     <button onclick="proceedUsdtOrder()" class="w-full ${isBuy ? 'bg-[#1a6e38] hover:bg-[#218745] border-emerald-400/30' : 'bg-amber-600 hover:bg-amber-500 border-amber-300/30'} border text-white font-black py-3.5 rounded-2xl text-sm transition shadow-lg">
                         ${isBuy ? 'متابعة شراء USDT 🚀' : 'متابعة بيع USDT واستلام الأوقية 💰'}
                     </button>
@@ -1394,7 +1697,6 @@
             }
         }
 
-        // زر الرجوع
         function handleBack() {
             if (currentView === 'packages' && selectedCategory) {
                 openCategory(selectedCategory);
@@ -1407,24 +1709,32 @@
             renderHome();
         }
 
-        // فتح نافذة الطلب وتخصيص حقولها
+        // ==================== 5. نافذة إرسال الطلب وإشعار الإدارة ====================
         function openOrderModal(config) {
+            if (!currentCustomerPhone) {
+                switchCustomerAccount();
+                return;
+            }
+
             currentOrderConfig = config;
             selectedPackage = config.pkg;
             receiptAttached = false;
 
+            const acc = getCustomerAccount(currentCustomerPhone);
             const initialPts = calcPointsFromAmount(config.pkg.amount || 0);
+            const rateTag = isFridayBoostActive() ? 'عرض الجمعة 3x' : 'عادي 1 نقطة/50';
             document.getElementById('modal-service-name').textContent = config.serviceName;
             document.getElementById('modal-package-title').textContent = config.pkg.title;
             document.getElementById('modal-price').textContent = config.pkg.price;
-            document.getElementById('modal-points').textContent = `+${initialPts} نقطة (بعد القبول) 🎁`;
+            document.getElementById('modal-points').textContent = `+${initialPts} نقطة (${rateTag}) 🎁`;
 
             document.getElementById('input-label').textContent = config.inputLabel;
             const primaryInput = document.getElementById('primary-input');
             primaryInput.value = '';
             primaryInput.placeholder = config.inputPlaceholder || 'أدخل البيانات المطلوبة هنا...';
 
-            document.getElementById('sender-phone-input').value = '';
+            // تعبئة الرقم المحول منه تلقائياً برقم واتساب العميل المسجل مع إمكانية تعديله
+            document.getElementById('sender-phone-input').value = currentCustomerPhone;
 
             const usdtPlatBox = document.getElementById('usdt-platform-box');
             const secBox = document.getElementById('secondary-input-box');
@@ -1444,7 +1754,7 @@
             const redeemCreditBox = document.getElementById('redeem-credit-box');
             const creditCheckbox = document.getElementById('apply-redeem-credit');
             creditCheckbox.checked = false;
-            if (redeemCreditMru > 0 && config.usdtMode !== 'sell') {
+            if ((acc.redeemCredit || 0) > 0 && config.usdtMode !== 'sell') {
                 redeemCreditBox.classList.remove('hidden');
             } else {
                 redeemCreditBox.classList.add('hidden');
@@ -1525,7 +1835,6 @@
             }
         }
 
-        // تأكيد وإرسال الطلب عبر الإيميل أو الواتساب (دون إضافة النقاط إلا بعد القبول)
         function submitOrder(channel) {
             const primaryVal = document.getElementById('primary-input').value.trim();
             const secondaryVal = document.getElementById('secondary-input').value.trim();
@@ -1548,13 +1857,15 @@
                 return;
             }
 
-            // خصم رصيد النقاط المستبدلة إذا اختاره الزبون
+            const acc = getCustomerAccount(currentCustomerPhone);
             const baseAmount = selectedPackage.amount || 0;
             const creditCheckbox = document.getElementById('apply-redeem-credit');
             let usedCredit = 0;
-            if (creditCheckbox && creditCheckbox.checked && redeemCreditMru > 0 && currentOrderConfig.usdtMode !== 'sell') {
-                usedCredit = Math.min(baseAmount, redeemCreditMru);
-                redeemCreditMru -= usedCredit;
+            if (creditCheckbox && creditCheckbox.checked && (acc.redeemCredit || 0) > 0 && currentOrderConfig.usdtMode !== 'sell') {
+                usedCredit = Math.min(baseAmount, acc.redeemCredit);
+                updateCustomerAccount(currentCustomerPhone, {
+                    redeemCredit: acc.redeemCredit - usedCredit
+                });
             }
 
             const finalAmount = Math.max(0, baseAmount - usedCredit);
@@ -1564,6 +1875,8 @@
 
             const newOrder = {
                 id: orderId,
+                customerPhone: currentCustomerPhone,
+                customerName: currentCustomerName || 'زبون',
                 serviceName: currentOrderConfig.serviceName,
                 packageTitle: selectedPackage.title,
                 amount: finalAmount,
@@ -1574,137 +1887,273 @@
                 payMethod: `${payMethodText} (${currentPayNumber})`,
                 usdtPlatform: currentOrderConfig.usdtMode ? selectedUsdtPlatform : null,
                 status: 'pending',
-                statusMessage: 'قيد المراجعة والتحقق من التحويل...',
                 createdAt: new Date().toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' })
             };
 
-            ordersHistory.unshift(newOrder);
-            saveState();
-            updatePointsUI();
+            const allOrders = getAllOrders();
+            allOrders.unshift(newOrder);
+            saveAllOrders(allOrders);
+            if (window.syncCloudOrder) {
+                window.syncCloudOrder(newOrder);
+            }
+
+            refreshCustomerUI();
             closeModal('order-modal');
+
+            // بناء روابط القبول والرفض المباشرة لتصلك في الإيميل
+            const baseUrl = window.location.href.split('?')[0];
+            const approveUrl = `${baseUrl}?adminAction=approve&orderId=${encodeURIComponent(orderId)}&phone=${encodeURIComponent(currentCustomerPhone)}`;
+            const rejectUrl = `${baseUrl}?adminAction=reject&orderId=${encodeURIComponent(orderId)}&phone=${encodeURIComponent(currentCustomerPhone)}`;
 
             let detailsLines = [
                 `• رقم الطلب: ${orderId}`,
+                `• رقم واتساب الزبون: ${currentCustomerPhone}`,
                 `• الخدمة: ${currentOrderConfig.serviceName}`,
                 `• الباقة / الكمية: ${selectedPackage.title}`,
                 `• المبلغ الإجمالي: ${finalAmount} أوقية` + (usedCredit > 0 ? ` (بعد خصم ${usedCredit} أوقية من النقاط)` : ''),
                 `• الرقم المحول منه: ${senderPhone}`,
                 `• البيانات المطلوبة: ${primaryVal}`
             ];
-            if (secondaryVal) {
-                detailsLines.push(`• بيانات إضافية: ${secondaryVal}`);
-            }
-            if (currentOrderConfig.usdtMode) {
-                detailsLines.push(`• المنصة: ${selectedUsdtPlatform}`);
-            }
+            if (secondaryVal) detailsLines.push(`• بيانات إضافية: ${secondaryVal}`);
+            if (currentOrderConfig.usdtMode) detailsLines.push(`• المنصة: ${selectedUsdtPlatform}`);
             detailsLines.push(`• وسيلة الدفع: ${payMethodText} (${currentPayNumber})`);
-            detailsLines.push(`• النقاط المستحقة عند القبول: +${potentialPoints} نقطة`);
+            detailsLines.push(`• النقاط المستحقة عند الموافقة: +${potentialPoints} نقطة`);
 
-            const phoneCandidate = senderPhone.replace(/\D/g, '');
-            const cleanPhone = phoneCandidate.length === 8 ? `222${phoneCandidate}` : phoneCandidate;
-            let adminActionLinks = '';
-            if (cleanPhone.length >= 8) {
-                const approveMsg = encodeURIComponent(`✅ تمت العملية شحن بنجاح من متجر DAH STORE!\nرقم الطلب: ${orderId}\nالخدمة: ${currentOrderConfig.serviceName} - ${selectedPackage.title}\nالنقاط المضافة: +${potentialPoints} نقطة`);
-                const rejectMsg = encodeURIComponent(`❌ تم رفض طلبك لمحاولة الاحتيال عبر متجر DAH STORE.\nرقم الطلب: ${orderId}\nالخدمة: ${currentOrderConfig.serviceName} - ${selectedPackage.title}`);
-                adminActionLinks = `\n\n====================================\n[لوحة تحكم الإدارة - اضغط لتأكيد أو رفض الطلب]:\n✅ قبول الطلب (تمت العملية شحن بنجاح + احتساب ${potentialPoints} نقطة):\nhttps://wa.me/${cleanPhone}?text=${approveMsg}\n\n❌ رفض الطلب (تم رفض طلبك لمحاولة الاحتيال - بدون نقاط):\nhttps://wa.me/${cleanPhone}?text=${rejectMsg}\n====================================`;
-            }
+            const emailBodyText =
+`طلب جديد من متجر DAH STORE (${orderId}):
+------------------------------------
+${detailsLines.join('\n')}
+------------------------------------
+مرفق صورة إثبات التحويل.
 
-            const invoiceText = `طلب جديد من متجر DAH STORE (${orderId}):\n------------------------------------\n${detailsLines.join('\n')}\n------------------------------------\nمرفق صورة إثبات التحويل.${adminActionLinks}`;
+====================================
+[رابط الموافقة على الطلب واحتساب +${potentialPoints} نقطة للزبون]:
+${approveUrl}
 
-            showToast(`📨 تم إرسال الطلب ${orderId} إلى dahstore123@gmail.com`);
+[رابط رفض الطلب (بدون احتساب نقاط)]:
+${rejectUrl}
+====================================`;
+
+            showToast(`📨 تم إرسال الطلب ${orderId} للمراجعة! سيصلك إشعار عند موافقة الإدارة.`);
 
             if (channel === 'whatsapp') {
-                const waUrl = `https://wa.me/22238425768?text=${encodeURIComponent(invoiceText)}`;
-                setTimeout(() => {
-                    window.open(waUrl, '_blank');
-                }, 500);
+                const waUrl = `https://wa.me/22238425768?text=${encodeURIComponent(emailBodyText)}`;
+                setTimeout(() => window.open(waUrl, '_blank'), 450);
             } else {
-                const subject = encodeURIComponent(`طلب جديد [${orderId}] - ${currentOrderConfig.serviceName} (${finalAmount} MRU)`);
-                const body = encodeURIComponent(invoiceText);
+                const subject = encodeURIComponent(`طلب جديد [${orderId}] - واتساب الزبون: ${currentCustomerPhone} (${finalAmount} MRU)`);
+                const body = encodeURIComponent(emailBodyText);
                 setTimeout(() => {
                     window.location.href = `mailto:dahstore123@gmail.com?subject=${subject}&body=${body}`;
-                }, 500);
+                }, 450);
             }
         }
 
-        // عرض نافذة الطلبات والتحقق من القبول أو الرفض
+        // ==================== 6. نافذة طلباتي للزبون (تعرض المعتمدة والمرفوضة من الإدارة فقط) ====================
         function openOrdersModal() {
-            renderOrdersList();
+            renderCustomerDecidedOrders();
             const modal = document.getElementById('orders-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
-        function renderOrdersList() {
+        function renderCustomerDecidedOrders() {
             const container = document.getElementById('orders-list-container');
-            if (!ordersHistory.length) {
-                container.innerHTML = `<p class="text-center text-gray-400 py-6">لا توجد طلبات مسجلة بعد.</p>`;
+            const allOrders = getAllOrders();
+            // تظهر للزبون فقط الطلبات التي تمت الموافقة عليها أو رفضها من طرف الإدارة
+            const decidedOrders = allOrders.filter(o =>
+                normalizePhone(o.customerPhone) === currentCustomerPhone &&
+                (o.status === 'approved' || o.status === 'rejected')
+            );
+
+            if (!decidedOrders.length) {
+                container.innerHTML = `
+                    <div class="text-center py-7 space-y-2">
+                        <span class="text-2xl block">📭</span>
+                        <p class="text-gray-300 font-bold">لا توجد طلبات معتمدة أو مرفوضة بعد</p>
+                        <p class="text-[11px] text-gray-400">عندما تقوم الإدارة بالموافقة على طلبك أو رفضه سيظهر هنا تلقائياً.</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = ordersHistory.map(order => {
-                let badgeHtml = `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-lg text-[10px] font-bold">قيد المراجعة</span>`;
-                let statusBanner = `<p class="text-[11px] text-amber-300/90 mt-1.5">⏳ بانتظار تحقق الإدارة من وصول التحويل (${order.senderPhone})...</p>`;
-
+            container.innerHTML = decidedOrders.map(order => {
                 if (order.status === 'approved') {
-                    badgeHtml = `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-bold">مقبول</span>`;
-                    statusBanner = `<p class="text-[11px] font-bold text-emerald-400 mt-1.5">✅ تمت العملية شحن بنجاح (+${order.potentialPoints} نقطة)</p>`;
+                    return `
+                        <div class="bg-[#0d1110] border border-emerald-500/40 rounded-2xl p-3.5 text-right space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-white text-xs">${order.id} • ${order.serviceName}</span>
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black">تمت الموافقة ✅</span>
+                            </div>
+                            <p class="text-[11px] text-gray-300">${order.packageTitle} — <strong class="text-emerald-400">${order.amount} أوقية</strong></p>
+                            <p class="text-[11px] font-bold text-emerald-400 pt-1">🎉 تمت الموافقة على طلبك وتم احتساب +${order.potentialPoints} نقطة!</p>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="bg-[#0d1110] border border-rose-500/40 rounded-2xl p-3.5 text-right space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-white text-xs">${order.id} • ${order.serviceName}</span>
+                                <span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black">مرفوض ❌</span>
+                            </div>
+                            <p class="text-[11px] text-gray-300">${order.packageTitle} — <strong class="text-gray-400">${order.amount} أوقية</strong></p>
+                            <p class="text-[11px] font-bold text-rose-400 pt-1">❌ تم رفض طلبك من طرف الإدارة (لم يتم احتساب أي نقاط).</p>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        // ==================== 7. لوحة تحكم الإدارة (صاحب المتجر فقط) ====================
+        function startLogoHold() {
+            logoHoldTimer = setTimeout(() => {
+                openAdminGate();
+            }, 2500);
+        }
+
+        function cancelLogoHold() {
+            if (logoHoldTimer) {
+                clearTimeout(logoHoldTimer);
+                logoHoldTimer = null;
+            }
+        }
+
+        function openAdminGate() {
+            document.getElementById('admin-pin-input').value = '';
+            document.getElementById('admin-login-box').classList.remove('hidden');
+            document.getElementById('admin-dashboard-box').classList.add('hidden');
+            const modal = document.getElementById('admin-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function verifyAdminPin() {
+            const pin = document.getElementById('admin-pin-input').value.trim();
+            if (pin !== ADMIN_PIN) {
+                showToast('❌ رمز مرور الإدارة غير صحيح');
+                return;
+            }
+            document.getElementById('admin-login-box').classList.add('hidden');
+            document.getElementById('admin-dashboard-box').classList.remove('hidden');
+            renderAdminOrdersList();
+        }
+
+        function renderAdminOrdersList() {
+            const container = document.getElementById('admin-orders-list');
+            const allOrders = getAllOrders();
+            if (!allOrders.length) {
+                container.innerHTML = `<p class="text-center text-gray-400 py-6">لا توجد طلبات واردة حالياً.</p>`;
+                return;
+            }
+
+            container.innerHTML = allOrders.map(order => {
+                let statusTag = `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-lg text-[10px] font-bold">بانتظار قرارك</span>`;
+                if (order.status === 'approved') {
+                    statusTag = `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-bold">تمت الموافقة (+${order.potentialPoints} نقطة)</span>`;
                 } else if (order.status === 'rejected') {
-                    badgeHtml = `<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-bold">مرفوض</span>`;
-                    statusBanner = `<p class="text-[11px] font-bold text-rose-400 mt-1.5">❌ تم رفض طلبك لمحاولة الاحتيال (لم تُحسب نقاط)</p>`;
+                    statusTag = `<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-bold">مرفوض (0 نقطة)</span>`;
                 }
 
-                const actionsHtml = order.status === 'pending' ? `
-                    <div class="grid grid-cols-2 gap-1.5 mt-2.5 pt-2 border-t border-[#1f2b27]">
-                        <button type="button" onclick="reviewOrder('${order.id}', 'approved')" class="bg-[#1a6e38] hover:bg-emerald-600 text-white font-black py-1.5 rounded-lg text-[11px] transition">
-                            ✅ قبول الطلب
+                const actionBtns = order.status === 'pending' ? `
+                    <div class="grid grid-cols-2 gap-2 mt-2.5 pt-2 border-t border-[#1f2b27]">
+                        <button type="button" onclick="adminDecideOrder('${order.id}', 'approved')" class="bg-[#1a6e38] hover:bg-emerald-600 text-white font-black py-2 rounded-xl text-xs transition">
+                            ✅ موافقة (+${order.potentialPoints} نقطة)
                         </button>
-                        <button type="button" onclick="reviewOrder('${order.id}', 'rejected')" class="bg-rose-700/80 hover:bg-rose-600 text-white font-black py-1.5 rounded-lg text-[11px] transition">
-                            ❌ رفض (احتيال)
+                        <button type="button" onclick="adminDecideOrder('${order.id}', 'rejected')" class="bg-rose-700 hover:bg-rose-600 text-white font-black py-2 rounded-xl text-xs transition">
+                            ❌ رفض الطلب
                         </button>
                     </div>
                 ` : '';
 
                 return `
-                    <div class="bg-[#0d1110] border border-[#1f2b27] rounded-2xl p-3 text-right">
+                    <div class="bg-[#0d1110] border border-[#1f2b27] rounded-2xl p-3 text-right space-y-1">
                         <div class="flex items-center justify-between">
-                            <span class="font-black text-white text-xs">${order.id} • ${order.serviceName}</span>
-                            ${badgeHtml}
+                            <span class="font-black text-white text-xs">${order.id}</span>
+                            ${statusTag}
                         </div>
-                        <p class="text-[11px] text-gray-300 mt-1">${order.packageTitle} — <strong class="text-emerald-400">${order.amount} أوقية</strong></p>
-                        <p class="text-[10px] text-gray-400">المحول منه: ${order.senderPhone} | الساعة: ${order.createdAt}</p>
-                        ${statusBanner}
-                        ${actionsHtml}
+                        <p class="text-[11px] text-emerald-300 font-bold">واتساب الزبون: ${order.customerPhone}</p>
+                        <p class="text-[11px] text-gray-300">${order.serviceName} — ${order.packageTitle} (${order.amount} أوقية)</p>
+                        <p class="text-[10px] text-gray-400">البيانات: ${order.primaryVal} | المحول منه: ${order.senderPhone}</p>
+                        ${actionBtns}
                     </div>
                 `;
             }).join('');
         }
 
-        // معالجة قرار الإدارة: قبول (تمت العملية شحن بنجاح + احتساب النقاط) أو رفض (تم رفض طلبك لمحاولة الاحتيال + عدم احتساب نقاط)
-        function reviewOrder(orderId, decision) {
-            const idx = ordersHistory.findIndex(o => o.id === orderId);
-            if (idx === -1) return;
-            const order = ordersHistory[idx];
-            if (order.status !== 'pending') return;
+        function adminDecideOrder(orderId, decision, targetPhoneOverride) {
+            const allOrders = getAllOrders();
+            const idx = allOrders.findIndex(o => o.id === orderId);
+            if (idx === -1) {
+                showToast('⚠️ لم يتم العثور على الطلب');
+                return;
+            }
+            const order = allOrders[idx];
+            if (order.status !== 'pending') {
+                showToast('ℹ️ تم اتخاذ قرار مسبقاً بشأن هذا الطلب');
+                return;
+            }
+
+            const phone = normalizePhone(targetPhoneOverride || order.customerPhone);
+            order.status = decision;
+            saveAllOrders(allOrders);
+            if (window.syncCloudOrder) {
+                window.syncCloudOrder(order);
+            }
 
             if (decision === 'approved') {
-                order.status = 'approved';
-                order.statusMessage = 'تمت العملية شحن بنجاح';
-                userPoints += (order.potentialPoints || 0);
-                saveState();
-                updatePointsUI();
-                renderOrdersList();
-                showToast(`✅ تمت العملية شحن بنجاح! تمت إضافة +${order.potentialPoints} نقطة`);
+                const acc = getCustomerAccount(phone);
+                updateCustomerAccount(phone, {
+                    points: (acc.points || 0) + (order.potentialPoints || 0)
+                });
+                showToast(`✅ تمت الموافقة على الطلب ${orderId} وإضافة +${order.potentialPoints} نقطة لحساب ${phone}`);
             } else {
-                order.status = 'rejected';
-                order.statusMessage = 'تم رفض طلبك لمحاولة الاحتيال';
-                saveState();
-                updatePointsUI();
-                renderOrdersList();
-                showToast('❌ تم رفض طلبك لمحاولة الاحتيال (لم يتم احتساب النقاط)');
+                showToast(`❌ تم رفض الطلب ${orderId} لحساب ${phone} (لم تُحسب نقاط)`);
+            }
+
+            renderAdminOrdersList();
+            refreshCustomerUI();
+        }
+
+        // معالجة روابط الموافقة أو الرفض القادمة من الإيميل (?adminAction=approve&orderId=...&phone=...)
+        function processEmailAdminUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const action = params.get('adminAction');
+            const orderId = params.get('orderId');
+            const phone = params.get('phone');
+
+            if (action && orderId) {
+                const decision = action === 'approve' ? 'approved' : 'rejected';
+                adminDecideOrder(orderId, decision, phone);
+                // تنظيف الرابط بعد التنفيذ
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
 
+        // دوال المزامنة السحابية عند توفرها
+        window.onCloudReady = function() {
+            if (currentCustomerPhone && window.subscribeCloudData) {
+                window.subscribeCloudData(currentCustomerPhone);
+            }
+        };
+
+        window.applyRemoteAccountUpdate = function(phone, data) {
+            const map = getAccountsMap();
+            map[phone] = { ...(map[phone] || {}), ...data };
+            saveAccountsMap(map);
+            refreshCustomerUI();
+        };
+
+        window.applyRemoteOrdersUpdate = function(remoteOrders) {
+            if (!Array.isArray(remoteOrders) || !remoteOrders.length) return;
+            const localOrders = getAllOrders();
+            const mergedMap = {};
+            localOrders.forEach(o => mergedMap[o.id] = o);
+            remoteOrders.forEach(o => mergedMap[o.id] = o);
+            const mergedList = Object.values(mergedMap);
+            saveAllOrders(mergedList);
+            refreshCustomerUI();
+        };
+
+        // ==================== 8. نوافذ مساعدة ====================
         function openPaymentModal() {
             document.getElementById('payment-modal').classList.remove('hidden');
             document.getElementById('payment-modal').classList.add('flex');
@@ -1716,7 +2165,7 @@
         }
 
         function openPointsModal() {
-            updatePointsUI();
+            refreshCustomerUI();
             document.getElementById('points-modal').classList.remove('hidden');
             document.getElementById('points-modal').classList.add('flex');
         }
@@ -1741,11 +2190,17 @@
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.classList.remove('opacity-0');
-            setTimeout(() => toast.classList.add('opacity-0'), 2800);
+            setTimeout(() => toast.classList.add('opacity-0'), 3200);
         }
 
         window.onload = function() {
-            updatePointsUI();
+            processEmailAdminUrlParams();
+            if (currentCustomerPhone) {
+                document.getElementById('auth-gate-modal').classList.add('hidden');
+                refreshCustomerUI();
+            } else {
+                document.getElementById('auth-gate-modal').classList.remove('hidden');
+            }
             renderHome();
         };
     </script>
