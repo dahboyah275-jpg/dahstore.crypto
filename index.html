@@ -2,12 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DAH STORE | متجر الشحن الرقمي</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>DAH STORE | متجر الشحن الرقمي السريع</title>
+  <!-- مكتبة Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- خط Cairo العربي -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
   <script>
     tailwind.config = {
       theme: {
@@ -19,11 +22,12 @@
             darkbg: '#070d0a',
             cardbg: '#0d1712',
             emeraldglow: '#10b981',
-          },
-        },
-      },
-    };
+          }
+        }
+      }
+    }
   </script>
+
   <style>
     body {
       background-color: #070d0a;
@@ -34,10 +38,27 @@
     }
 
     .ambient-bg {
-      background:
-        radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.16), transparent 40%),
-        radial-gradient(circle at 85% 20%, rgba(5, 150, 105, 0.12), transparent 45%),
-        #070d0a;
+      background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.16) 0%, rgba(7, 13, 10, 0) 62%);
+    }
+
+    .hero-banner {
+      background: linear-gradient(155deg, #102418 0%, #0d1712 58%, #09100c 100%);
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    }
+
+    .btn-deposit {
+      background: linear-gradient(90deg, #059669 0%, #10b981 50%, #059669 100%);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-deposit:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .btn-deposit:active {
+      transform: scale(0.98);
     }
 
     .grid-tile {
@@ -45,117 +66,26 @@
       aspect-ratio: 1 / 1;
       border-radius: 1.05rem;
       overflow: hidden;
-      background: linear-gradient(145deg, #112219, #0a140f);
       border: 1px solid rgba(16, 185, 129, 0.22);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
     }
-
-    .grid-tile:hover,
-    .grid-tile.active {
+    .grid-tile:hover, .grid-tile:active {
+      border-color: rgba(16, 185, 129, 0.8);
       transform: translateY(-2px) scale(1.015);
-      border-color: rgba(16, 185, 129, 0.85);
-      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.18);
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.25);
     }
-
     .grid-tile.disabled-tile {
       cursor: not-allowed;
       opacity: 0.72;
+      border-color: rgba(239, 68, 68, 0.35);
     }
-
     .grid-tile.disabled-tile:hover {
       transform: none;
-      border-color: rgba(16, 185, 129, 0.22);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+      border-color: rgba(239, 68, 68, 0.45);
+      box-shadow: none;
     }
 
     .tile-overlay {
-      background: linear-gradient(to top, rgba(4, 8, 6, 0.96) 0%, rgba(4, 8, 6, 0.45) 55%, transparent 100%);
-    }
-
-    .btn-active:active {
-      transform: scale(0.98);
-    }
-  </style>
-</head>
-<body class="ambient-bg min-h-screen flex flex-col">
-  <!-- Header -->
-  <header class="sticky top-0 z-30 backdrop-blur-md bg-darkbg/85 border-b border-emerald-500/15">
-    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center font-extrabold text-emerald-400 text-lg">
-          D
-        </div>
-        <div>
-          <h1 class="text-lg sm:text-xl font-extrabold tracking-wide text-white leading-tight">DAH STORE</h1>
-          <p class="text-xs text-emerald-300/80">متجر الشحن الرقمي والبطاقات والاشتراكات</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 text-xs bg-cardbg border border-emerald-500/20 rounded-xl px-3 py-2">
-        <span class="text-gray-400">سعر الصرف:</span>
-        <span class="font-bold text-emerald-400">1$ = 50 أوقية</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-8">
-    <!-- Hero Banner -->
-    <section class="rounded-2xl bg-cardbg/90 border border-emerald-500/20 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div class="space-y-1.5">
-        <span class="inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-          تسليم سريع وموثوق
-        </span>
-        <h2 class="text-xl sm:text-2xl font-extrabold text-white">اختر الخدمة أو الباقة المناسبة لك</h2>
-        <p class="text-sm text-gray-300">الأسعار محسوبة تلقائياً بالأوقية (MRU) والدولار ($).</p>
-      </div>
-      <a href="#order-form" class="btn-active inline-flex items-center justify-center px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-darkbg font-extrabold text-sm transition">
-        اطلب الآن
-      </a>
-    </section>
-
-    <!-- Services Grid -->
-    <section class="space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base sm:text-lg font-bold text-white">الخدمات المتاحة</h3>
-        <span id="selected-badge" class="text-xs text-emerald-400 font-semibold">اختر باقة من الأسفل</span>
-      </div>
-
-      <div id="services-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5"></div>
-    </section>
-
-    <!-- Packages List -->
-    <section id="packages-section" class="space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 id="packages-title" class="text-base sm:text-lg font-bold text-white">الباقات والأسعار</h3>
-        <span class="text-xs text-gray-400">اضغط على الباقة لتحديدها</span>
-      </div>
-
-      <div id="packages-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
-    </section>
-
-    <!-- Order Section -->
-    <section id="order-form" class="rounded-2xl bg-cardbg border border-emerald-500/25 p-5 sm:p-6 space-y-5">
-      <div>
-        <h3 class="text-lg font-extrabold text-white">إتمام الطلب</h3>
-        <p class="text-xs sm:text-sm text-gray-400 mt-0.5">أدخل بياناتك وسيتم تجهيز طلبك فوراً.</p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label for="customer-id" class="block text-xs font-bold text-gray-300 mb-1.5">معرف الحساب / البريد / اسم المستخدم</label>
-          <input id="customer-id" type="text" placeholder="مثال: ID 123456789 أو username" class="w-full rounded-xl bg-darkbg border border-emerald-500/25 focus:border-emerald-400 focus:outline-none px-3.5 py-2.5 text-sm text-white" />
-        </div>
-
-        <div>
-          <label for="customer-contact" class="block text-xs font-bold text-gray-300 mb-1.5">رقم الهاتف أو حساب التواصل</label>
-          <input id="customer-contact" type="text" placeholder="مثال: رقم واتساب أو سناب شات" class="w-full rounded-xl bg-darkbg border border-emerald-500/25 focus:border-emerald-400 focus:outline-none px-3.5 py-2.5 text-sm text-white" />
-        </div>
-      </div>
-
-      <div class="rounded-xl bg-darkbg/90 border border-emerald-500/20 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <p class="text-xs text-gray-400">الباقة المختارة:</p>
-          <p id="summary-text" class="text-sm font-bold text-emerald-3
+      background: linear-gradient(to top, rgba(4, 8, 6, 0.96) 0%, rgba(4, 8,
