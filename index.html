@@ -88,4 +88,98 @@
     }
 
     .tile-overlay {
-      background: linear-gradient(to top, rgba(4, 8, 6, 0.96) 0%, rgba(4, 8,
+      background: linear-gradient(to top, rgba(4, 8, 6, 0.96) 0%, rgba(4, 8, 6, 0.52) 48%, rgba(0, 0, 0, 0.05) 100%);
+    }
+
+    .tile-image-overlay {
+      background: linear-gradient(to top, rgba(4, 8, 6, 0.97) 0%, rgba(4, 8, 6, 0.45) 38%, rgba(0, 0, 0, 0) 75%);
+    }
+
+    .package-card {
+      background: linear-gradient(155deg, rgba(16, 29, 22, 0.96), rgba(9, 16, 12, 0.99));
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .package-card:hover, .package-card:active {
+      border-color: rgba(16, 185, 129, 0.88);
+      background: linear-gradient(155deg, rgba(20, 38, 29, 0.98), rgba(11, 21, 16, 1));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.25);
+    }
+
+    .glass-panel {
+      background: linear-gradient(145deg, rgba(16, 28, 22, 0.97), rgba(9, 17, 13, 0.99));
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-gmail {
+      background: linear-gradient(135deg, #dc2626 0%, #ea4335 100%);
+      box-shadow: 0 4px 15px rgba(234, 67, 53, 0.35);
+      transition: all 0.2s ease;
+    }
+    .btn-gmail:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.32);
+      transition: all 0.2s ease;
+    }
+    .btn-whatsapp:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.24s ease-out forwards;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070d0a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #143324;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="min-h-screen ambient-bg flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+  <!-- إشعار منبثق (Toast) -->
+  <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden items-center gap-2 px-4 py-2.5 rounded-full bg-emerald-950/95 border border-emerald-500/70 text-emerald-100 text-xs sm:text-sm font-bold shadow-2xl backdrop-blur-md">
+    <span id="toast-icon">✅</span>
+    <span id="toast-msg">تمت العملية بنجاح</span>
+  </div>
+
+  <!-- ================= شاشة تسجيل الدخول برقم الواتساب (LOGIN GATE) ================= -->
+  <div id="login-gate" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#050907]/95 backdrop-blur-md p-4">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 animate-fade-in border-emerald-500/40">
+      <div class="text-center mb-5">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-xl shadow-emerald-500/25 mb-3">
+          <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-black text-white" dir="ltr">DAH <span class="text-emerald-400">STORE</span></h2>
+        <p class="text-xs sm:text-sm text-gray-300 mt-1.5 leading-relaxed">
+          سجل دخولك برقم الواتساب لفتح حسابك وحفظ نقاطك ومتابعة طلباتك قيد المراجعة
+        </p>
+      </div>
+
+      <!-- المرحلة 1: إدخال رقم الواتساب وإرسال رمز التحقق -->
+      <form id="whatsapp-step1-form" onsubmit="sendWhatsAppVerificationCode(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-emerald-300 mb-1.5">رقم الواتساب <span class="text-red-400">*</span></label>
+          <input
