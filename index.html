@@ -449,7 +449,7 @@
       <a href="https://wa.me/22238425768" target="_blank" rel="noopener noreferrer" class="underline hover:text-emerald-200" dir="ltr">+22238425768</a>
     </p>
     <div class="flex items-center justify-center gap-3 mt-1 text-[11px] text-gray-400">
-      <a href="mailto:dahboyab275@gmail.com" class="hover:text-red-400 transition">dahboyab275@gmail.com</a>
+      <a href="mailto:dahstore123@gmail.com" class="hover:text-red-400 transition">dahstore123@gmail.com</a>
       <span>•</span>
       <button type="button" onclick="openPaymentModal()" class="hover:text-emerald-400 transition">طرق الدفع المعتمدة</button>
     </div>
@@ -686,7 +686,7 @@
 
   <!-- ================= البيانات والمنطق البرمجي (JavaScript) ================= -->
   <script>
-    const STORE_GMAIL = "dahboyab275@gmail.com";
+    const STORE_GMAIL = "dahstore123@gmail.com";
     const STORE_WHATSAPP = "22238425768";
     const APPLE_US_RATE_PER_DOLLAR = 50;
     const APPLE_US_MIN_DOLLARS = 5;
@@ -1186,7 +1186,6 @@
       generatedOtpCode = String(Math.floor(100000 + Math.random() * 900000));
 
       document.getElementById("verify-target-phone").textContent = `+${clean}`;
-      // عرض رمز التحقق للمستخدم لسهولة إتمام التحقق في المتصفح مع فتح واتساب كقناة تحقق
       document.getElementById("verify-code-hint").textContent = `رمز التحقق الخاص بك: ${generatedOtpCode}`;
       document.getElementById("login-otp-input").value = "";
 
@@ -1842,10 +1841,8 @@
 
       showToast("طلبك قيد المراجعة سيكتمل بعد 5 دقايق", "✅");
 
-      // فتح البريد الإلكتروني لإرسال الطلب ورابط المراجعة إلى dahboyab275@gmail.com
       window.location.href = `mailto:${STORE_GMAIL}?subject=${emailSubject}&body=${emailBody}`;
 
-      // فتح قائمة طلبات الزبون مباشرة ليرى طلبه قيد المراجعة سيكتمل بعد 5 دقايق
       setTimeout(() => {
         openOrdersModal();
       }, 450);
@@ -2090,7 +2087,6 @@
           ordersList.unshift(updatedOrder);
         }
 
-        // إضافة النقاط لحساب الزبون مرة واحدة عند تأكيد اكتمال الطلب
         if (!alreadyApproved) {
           profile.points = (profile.points || 0) + (parseInt(updatedOrder.points, 10) || 0);
         }
